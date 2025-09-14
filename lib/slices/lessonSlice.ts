@@ -34,9 +34,9 @@ export const createLesson = createAsyncThunk(
 
 export const getLessons = createAsyncThunk(
   "lessons/getAll",
-  async (_, { rejectWithValue }) => {
+  async (userEmail: string, { rejectWithValue }) => {
     try {
-      return await lessonService.getLessons();
+      return await lessonService.getLessons(userEmail);
     } catch (err: any) {
       return rejectWithValue(err.response?.data || err.message);
     }

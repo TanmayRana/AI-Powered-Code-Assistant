@@ -13,8 +13,8 @@ export const lessonService = {
     return res.data;
   },
 
-  getLessons: async () => {
-    const res = await axios.get("/api/lesson");
+  getLessons: async (userEmail: string) => {
+    const res = await axios.post("/api/lesson", { userEmail });
     return res.data;
   },
 
