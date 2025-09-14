@@ -17,7 +17,7 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 
-import { Code, Sparkles } from "lucide-react";
+import { Code, Loader2, Sparkles } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 interface CodeAssistantResponse {
@@ -62,6 +62,8 @@ const EditorPage: React.FC = () => {
 
   const [languages, setLanguages] = useState<Language[]>([]);
   const [loading, setLoading] = useState(true);
+  const [codeloading, setCodeloading] = useState(false);
+
   const [error, setError] = useState<string | null>(null);
   const [open, setOpen] = useState(false);
   const [codeAssistant, setCodeAssistant] =
@@ -306,43 +308,108 @@ module.exports = { question, questionInt, questionFloat, prompt };`,
   };
 
   // AI Assist handler
+  // const handleAIAssist = async () => {
+  //   if (!editorState.code || !editorState.language) {
+  //     toast.error("Please write some code first!");
+  //     return;
+  //   }
+
+  //   // TODO: add subscribe
+  //   try {
+  //     const hasSubscriptionEnabled = await hasSubscription();
+
+  //     if (!hasSubscriptionEnabled) {
+  //       toast("You've Upgrade premium access for unlimited AI analysis.");
+  //       router.push("/subscribe");
+
+  //       return;
+  //     }
+
+  //     const response = await axios.post("/api/ai-code-assistant", {
+  //       code: editorState.code,
+  //       language: editorState.language,
+  //     });
+
+  //     console.log("response", response);
+
+  //     let jsonString = response.data.content.trim();
+  //     const firstBrace = jsonString.indexOf("{");
+  //     const lastBrace = jsonString.lastIndexOf("}");
+  //     if (firstBrace === -1 || lastBrace === -1) {
+  //       throw new Error("No JSON object found in AI response.");
+  //     }
+  //     jsonString = jsonString.slice(firstBrace, lastBrace + 1);
+  //     const parsedContent = JSON.parse(jsonString);
+  //     console.log("parsedContent", parsedContent);
+
+  //     setCodeAssistant(parsedContent);
+  //     setOpen(true);
+  //   } catch (error) {
+  //     toast.error("AI assistant returned invalid JSON.");
+  //     console.error("AI Assistant Error:", error);
+  //   }
+  // };
+
   const handleAIAssist = async () => {
     if (!editorState.code || !editorState.language) {
       toast.error("Please write some code first!");
       return;
     }
 
-    // TODO: add subscribe
     try {
       const hasSubscriptionEnabled = await hasSubscription();
 
       if (!hasSubscriptionEnabled) {
         toast("You've Upgrade premium access for unlimited AI analysis.");
         router.push("/subscribe");
-
         return;
       }
+
+      setCodeloading(true);
 
       const response = await axios.post("/api/ai-code-assistant", {
         code: editorState.code,
         language: editorState.language,
       });
 
+      console.log("response", response);
+
       let jsonString = response.data.content.trim();
+
+      // 🔹 Remove Markdown code fences like ```json ... ```
+      jsonString = jsonString
+        .replace(/```[a-z]*\n?/gi, "")
+        .replace(/```/g, "")
+        .trim();
+
+      // 🔹 Extract only the JSON part
       const firstBrace = jsonString.indexOf("{");
       const lastBrace = jsonString.lastIndexOf("}");
       if (firstBrace === -1 || lastBrace === -1) {
         throw new Error("No JSON object found in AI response.");
       }
       jsonString = jsonString.slice(firstBrace, lastBrace + 1);
-      const parsedContent = JSON.parse(jsonString);
-      // console.log("parsedContent", parsedContent);
+
+      // 🔹 Clean trailing commas (AI sometimes adds them)
+      jsonString = jsonString.replace(/,\s*([}\]])/g, "$1");
+
+      let parsedContent;
+      try {
+        parsedContent = JSON.parse(jsonString);
+      } catch (err) {
+        console.error("JSON parse failed, cleaned string:", jsonString);
+        throw new Error("Invalid JSON after cleanup.");
+      }
+
+      console.log("parsedContent", parsedContent);
 
       setCodeAssistant(parsedContent);
       setOpen(true);
     } catch (error) {
       toast.error("AI assistant returned invalid JSON.");
       console.error("AI Assistant Error:", error);
+    } finally {
+      setCodeloading(false);
     }
   };
 
@@ -427,8 +494,24 @@ module.exports = { question, questionInt, questionFloat, prompt };`,
               })
             }
           />
-          <Button variant="outline" size="sm" onClick={handleAIAssist}>
+          {/* <Button variant="outline" size="sm" onClick={handleAIAssist}>
             <Sparkles className="h-4 w-4 mr-2" /> AI Assist
+          </Button> */}
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleAIAssist}
+            disabled={codeloading}
+          >
+            {codeloading ? (
+              <>
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" /> Processing...
+              </>
+            ) : (
+              <>
+                <Sparkles className="h-4 w-4 mr-2" /> AI Assist
+              </>
+            )}
           </Button>
         </div>
       </header>
