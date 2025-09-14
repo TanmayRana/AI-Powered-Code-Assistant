@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import axios from "axios";
-import { CircularProgressbar } from "react-circular-progressbar";
+import { CircularProgressbar, buildStyles } from "react-circular-progressbar";
 import "react-circular-progressbar/dist/styles.css";
 import { CiBookmark, CiBookmarkCheck } from "react-icons/ci";
 
@@ -13,9 +13,11 @@ import { AppDispatch, RootState } from "@/lib/store";
 import { useParams } from "next/navigation";
 import { useUser } from "@clerk/nextjs";
 import { fetchFullSheetsData } from "@/lib/slices/fullSheetsSlice";
+// import { fetchCompletedQuestions } from "@/lib/slices/completedQuestionsSlice";
 import { motion } from "framer-motion";
 
 import Dropdown from "@/components/exploresheets/Dropdown";
+import { fetchCompletedQuestions } from "@/lib/slices/completedQuestionsSlice";
 
 // -------------------- Types --------------------
 interface Question {
@@ -46,6 +48,9 @@ function Sheet() {
   const { data, isLoading, isError } = useSelector(
     (state: RootState) => state.FullSheetsData
   );
+  const { completedQuestions } = useSelector(
+    (state: RootState) => state.completedQuestions
+  );
 
   const [sheetData, setSheetData] = useState<FullSheetData | null>(null);
   const [loading, setLoading] = useState(false);
@@ -55,6 +60,9 @@ function Sheet() {
 
   const { user } = useUser();
   const userId = user?.id;
+  // const { completedQuestions } = useSelector(
+  //   (state: RootState) => state.completedQuestions
+  // );
 
   // Fetch sheet
   useEffect(() => {
@@ -62,6 +70,13 @@ function Sheet() {
       dispatch(fetchFullSheetsData(sheetname));
     }
   }, [dispatch, sheetname]);
+
+  // Fetch user completion progress
+  useEffect(() => {
+    if (userId) {
+      dispatch(fetchCompletedQuestions(userId));
+    }
+  }, [dispatch, userId]);
 
   // Update state when data changes
   useEffect(() => {
@@ -132,6 +147,26 @@ function Sheet() {
     }
   };
 
+  // console.log("sheetData=", sheetData);
+
+  // -------------------- Progress (sheet-level) --------------------
+  const totalQuestions = questionData.length || 0;
+  const sheetId = sheetData?.sheet._id;
+  const sheetProgress = (completedQuestions || []).find(
+    (s: any) => s.sheetId?.toString() === sheetId?.toString()
+  );
+  const completedCount = (sheetProgress?.questions || []).filter(
+    (q: any) => q.completed
+  ).length;
+  const percent =
+    totalQuestions > 0 ? (completedCount / totalQuestions) * 100 : 0;
+
+  // const sheetProgress = completedQuestions.find(
+  //   (sheet: any) => sheet.sheetId?.toString() === sheetData?.sheet._id
+  // );
+
+  // console.log("sheetProgress=", sheetProgress);
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50 dark:from-slate-950 dark:via-slate-900 dark:to-slate-800">
       <div className="space-y-6">
@@ -177,8 +212,17 @@ function Sheet() {
               </div>
 
               <div className="md:w-[20%] w-full flex items-center justify-center">
-                <div className="w-[50%] md:w-[70%]">
-                  <CircularProgressbar value={66} text={`${66}%`} />
+                <div className="w-[30%] md:w-[70%]">
+                  <CircularProgressbar
+                    value={percent}
+                    text={`${Math.round(percent)}%`}
+                    styles={buildStyles({
+                      pathColor: "#6366f1",
+                      trailColor: "#e5e7eb",
+                      textColor: "#374151",
+                      strokeLinecap: "round",
+                    })}
+                  />
                 </div>
               </div>
             </div>
@@ -212,6 +256,7 @@ function Sheet() {
                       questions={topicQuestions}
                       index={index}
                       onToggleCompletion={handleToggleCompletion}
+                      sheetId={sheetData?.sheet._id}
                     />
                   </motion.div>
                 );
