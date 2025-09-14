@@ -23,5 +23,5 @@ const sheetSchema = new Schema(
   { timestamps: true }
 );
 
-const Sheet = models.Sheet || model("Sheet", sheetSchema);
+const Sheet = (models.Sheet as any) || model("Sheet", sheetSchema);
 export default Sheet;

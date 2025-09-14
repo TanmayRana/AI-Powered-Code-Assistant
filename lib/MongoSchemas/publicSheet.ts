@@ -26,5 +26,6 @@ const FullSheetSchema = new Schema(
   { timestamps: true }
 );
 
-const FullSheet = models?.FullSheet || model("FullSheet", FullSheetSchema);
+const FullSheet =
+  (models?.FullSheet as any) || model("FullSheet", FullSheetSchema);
 export default FullSheet;

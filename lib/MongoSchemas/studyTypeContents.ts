@@ -13,7 +13,7 @@ const studyTypeContentsSchema = new Schema(
 
 // Fix the complex union type issue by using any type
 const StudyTypeContents: any =
-  models.StudyTypeContents ||
+  (models.StudyTypeContents as any) ||
   model("StudyTypeContents", studyTypeContentsSchema);
 
 export default StudyTypeContents;

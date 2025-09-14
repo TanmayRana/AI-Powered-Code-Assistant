@@ -16,6 +16,6 @@ const dailyquestionSchema = new Schema(
 );
 
 const DailyQuestion =
-  models.DailyQuestion || model("DailyQuestion", dailyquestionSchema);
+  (models.DailyQuestion as any) || model("DailyQuestion", dailyquestionSchema);
 
 export default DailyQuestion;

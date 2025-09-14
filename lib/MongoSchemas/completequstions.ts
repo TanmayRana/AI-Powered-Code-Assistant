@@ -32,7 +32,7 @@ const completeQuestionsSchema = new Schema({
 });
 
 const CompleteQuestions =
-  models.CompleteQuestions ||
+  (models.CompleteQuestions as any) ||
   model("CompleteQuestions", completeQuestionsSchema);
 
 export default CompleteQuestions;

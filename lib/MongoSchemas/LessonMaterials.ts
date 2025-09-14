@@ -51,6 +51,7 @@ lessonMaterialsSchema.pre("updateMany", function (next: any) {
 
 // Fix the complex union type issue by using any type
 const LessonMaterials: any =
-  models.LessonMaterials || model("LessonMaterials", lessonMaterialsSchema);
+  (models.LessonMaterials as any) ||
+  model("LessonMaterials", lessonMaterialsSchema);
 
 export default LessonMaterials;
