@@ -1,6 +1,7 @@
 import connectDB from "@/lib/mongodb";
 import Following from "@/lib/MongoSchemas/FollowingModel";
 import Sheet from "@/lib/MongoSchemas/Sheet";
+import { fetchSheets } from "@/lib/slices/sheetSlice";
 
 export const POST = async (req: Request) => {
   try {
@@ -54,6 +55,8 @@ export const POST = async (req: Request) => {
         { status: 500, headers: { "Content-Type": "application/json" } }
       );
     }
+
+    fetchSheets();
 
     return new Response(
       JSON.stringify({
