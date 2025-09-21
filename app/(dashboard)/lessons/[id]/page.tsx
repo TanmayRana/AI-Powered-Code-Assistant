@@ -59,7 +59,7 @@ export default function LessonDetailPage() {
   const loadingData = useSelector((state: RootState) => state.lessons.loading);
   const error = useSelector((state: RootState) => state.lessons.error);
 
-  console.log("lesson=", lesson);
+  // console.log("lesson=", lesson);
 
   // Fetch lesson from redux
   useEffect(() => {

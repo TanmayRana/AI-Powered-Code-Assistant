@@ -17,10 +17,7 @@ export const POST = async (req: Request) => {
       });
     }
 
-    // Ensure unfollowedSheetId is an ObjectId
-    // const unfollowedSheetObjectId = new mongoose.Types.ObjectId(
-    //   unfollowedSheetId
-    // );
+
 
     // Find and update the Following collection
     const followedData = await Following.findOneAndUpdate(
@@ -36,32 +33,12 @@ export const POST = async (req: Request) => {
       });
     }
 
-    // if (!followedData.followings.includes(unfollowedSheetObjectId)) {
-    //   return new Response(
-    //     JSON.stringify({ message: "Sheet not found in followings" }),
-    //     { status: 404, headers: { "Content-Type": "application/json" } }
-    //   );
-    // }
-
-    // Update the followers count in PublicSheets
-    const updateResult = await Sheet.updateOne(
-      { _id: unfollowedSheetId },
-      { $inc: { followers: -1 }, $set: { isFollowing: false } }
-    );
-
-    if (updateResult.modifiedCount === 0) {
-      return new Response(
-        JSON.stringify({ message: "Failed to update public sheets" }),
-        { status: 500, headers: { "Content-Type": "application/json" } }
-      );
-    }
-
-    fetchSheets();
+  
 
     return new Response(
       JSON.stringify({
         message: "Unfollowed sheet successfully",
-        modifiedCount: updateResult.modifiedCount,
+        modifiedCount: followedData,
       }),
       { status: 200, headers: { "Content-Type": "application/json" } }
     );

@@ -372,7 +372,7 @@ module.exports = { question, questionInt, questionFloat, prompt };`,
         language: editorState.language,
       });
 
-      console.log("response", response);
+      // console.log("response", response);
 
       let jsonString = response.data.content.trim();
 
@@ -401,7 +401,7 @@ module.exports = { question, questionInt, questionFloat, prompt };`,
         throw new Error("Invalid JSON after cleanup.");
       }
 
-      console.log("parsedContent", parsedContent);
+      // console.log("parsedContent", parsedContent);
 
       setCodeAssistant(parsedContent);
       setOpen(true);

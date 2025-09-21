@@ -147,6 +147,9 @@ const MaterialCardItem: React.FC<MaterialCardItemProps> = ({
   refreshData,
 }) => {
   const [loading, setLoading] = useState(false);
+  // console.log("course=", course);
+  // console.log("studyTypeContent=", studyTypeContent);
+  // console.log("item=", item);
 
   // Determine if content exists for this study type
   const isEmpty =

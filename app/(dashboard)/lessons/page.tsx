@@ -928,10 +928,12 @@ export default function LessonsPage() {
       );
       if (createLesson.fulfilled.match(actionResult)) {
         const newLesson = actionResult.payload;
-        toast.success("✨ Lesson created successfully!");
+        // console.log("newLesson=", newLesson);
+
         if (newLesson) {
-          router.push(`/lessons/${newLesson}`);
+          router.push(`/lessons/${newLesson?.id}`);
         }
+        toast.success("✨ Lesson created successfully!");
         setOpen(false);
         setPurpose("");
         setTopic("");

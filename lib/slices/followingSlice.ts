@@ -1,71 +1,113 @@
-import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
-import followingService from "../services/followingService";
-// import followingService from "./followingService";
+import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
+import { followingService, FollowSheetsPayload } from "../services/followingService";
 
-interface FullSheetsState {
-  data: any[];
-  isLoading: boolean;
-  isError: boolean;
-  isSuccess: boolean;
-  message: string;
+interface Sheet {
+  _id: string;
+  title: string;
+  description?: string;
+  [key: string]: any;
 }
 
-const initialState: FullSheetsState = {
-  data: [],
-  isLoading: false,
-  isError: false,
-  isSuccess: false,
-  message: "",
+interface FollowingState {
+  followingsheets: Sheet[];
+  loading: boolean;
+  error: string | null;
+}
+
+const initialState: FollowingState = {
+  followingsheets: [],
+  loading: false,
+  error: null,
 };
 
-// Thunk with userId as input
-export const fetchFollowingData = createAsyncThunk<
-  any[],
-  string,
-  { rejectValue: string }
->("fullSheets/fetch", async (userId, thunkAPI) => {
-  try {
-    const response = await followingService.getFollowingData(userId); // updated to correct method name
-    return response;
-  } catch (error: any) {
-    const errorMessage =
-      error.response?.data?.message || error.message || "Something went wrong";
-    return thunkAPI.rejectWithValue(errorMessage);
+// ✅ GET followed sheets
+export const fetchFollowedSheets = createAsyncThunk(
+  "following/fetchFollowedSheets",
+  async (userId: string, { rejectWithValue }) => {
+    try {
+      return await followingService.fetchFollowedSheets(userId);
+    } catch (err: any) {
+      return rejectWithValue(err.response?.data?.message || "Error fetching followed sheets");
+    }
   }
-});
+);
 
-const fullSheetsSlice = createSlice({
-  name: "fullSheets",
+// ✅ POST follow sheets
+export const followSheets = createAsyncThunk(
+  "following/followSheets",
+  async (payload: FollowSheetsPayload, { rejectWithValue }) => {
+    try {
+      return await followingService.followSheets(payload);
+    } catch (err: any) {
+      return rejectWithValue(err.response?.data?.message || "Error following sheets");
+    }
+  }
+);
+
+// ✅ POST unfollow sheet
+export const unfollowSheet = createAsyncThunk(
+  "following/unfollowSheet",
+  async ({ userId, sheetId }: { userId: string; sheetId: string }, { rejectWithValue }) => {
+    try {
+      return await followingService.unfollowSheet(userId, sheetId);
+    } catch (err: any) {
+      return rejectWithValue(err.response?.data?.message || "Error unfollowing sheet");
+    }
+  }
+);
+
+const followingSlice = createSlice({
+  name: "following",
   initialState,
   reducers: {
-    reset: (state) => {
-      state.data = [];
-      state.isLoading = false;
-      state.isError = false;
-      state.isSuccess = false;
-      state.message = "";
+    clearFollowing(state) {
+      state.followingsheets = [];
+      state.error = null;
+      state.loading = false;
     },
   },
   extraReducers: (builder) => {
     builder
-      .addCase(fetchFollowingData.pending, (state) => {
-        state.isLoading = true;
+      // fetchFollowedSheets
+      .addCase(fetchFollowedSheets.pending, (state) => {
+        state.loading = true;
       })
-      .addCase(
-        fetchFollowingData.fulfilled,
-        (state, action: PayloadAction<any[]>) => {
-          state.isLoading = false;
-          state.isSuccess = true;
-          state.data = action.payload;
-        }
-      )
-      .addCase(fetchFollowingData.rejected, (state, action) => {
-        state.isLoading = false;
-        state.isError = true;
-        state.message = action.payload || "Failed to fetch following data";
+      .addCase(fetchFollowedSheets.fulfilled, (state, action: PayloadAction<Sheet[]>) => {
+        state.loading = false;
+        state.followingsheets = action.payload;
+      })
+      .addCase(fetchFollowedSheets.rejected, (state, action: any) => {
+        state.loading = false;
+        state.error = action.payload;
+      });
+
+    builder
+      // followSheets
+      .addCase(followSheets.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(followSheets.fulfilled, (state) => {
+        state.loading = false;
+      })
+      .addCase(followSheets.rejected, (state, action: any) => {
+        state.loading = false;
+        state.error = action.payload;
+      });
+
+    builder
+      // unfollowSheet
+      .addCase(unfollowSheet.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(unfollowSheet.fulfilled, (state) => {
+        state.loading = false;
+      })
+      .addCase(unfollowSheet.rejected, (state, action: any) => {
+        state.loading = false;
+        state.error = action.payload;
       });
   },
 });
 
-export const { reset } = fullSheetsSlice.actions;
-export default fullSheetsSlice.reducer;
+export const { clearFollowing } = followingSlice.actions;
+export default followingSlice.reducer;

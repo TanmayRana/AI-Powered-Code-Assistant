@@ -3,6 +3,7 @@ import { inngest } from "../../../inngest/client";
 import {
   aiAgentFunction,
   aiCodeAssistantFunction,
+  aiLessonAgentFunction,
   GenerateNotes,
   GenerateStudyTypeContent,
   helloWorld,
@@ -17,5 +18,6 @@ export const { GET, POST, PUT } = serve({
     GenerateStudyTypeContent,
     aiAgentFunction,
     aiCodeAssistantFunction,
+    aiLessonAgentFunction,
   ],
 });

@@ -1,7 +1,8 @@
 "use client";
 
 import SheetCard from "@/components/exploresheets/SheetCard";
-import { fetchFollowingData } from "@/lib/slices/followingSlice";
+import { fetchFollowedSheets } from "@/lib/slices/followingSlice";
+// import { fetchFollowingData } from "@/lib/slices/followingSlice";
 import { AppDispatch, RootState } from "@/lib/store";
 import { useUser } from "@clerk/nextjs";
 import { Plus } from "lucide-react";
@@ -15,25 +16,27 @@ const SheetsPage = () => {
   const dispatch = useDispatch<AppDispatch>();
   const [sheetData, setSheetData] = useState<any[]>([]);
 
-  const { data, isLoading, isError, message } = useSelector(
+  const { followingsheets } = useSelector(
     (state: RootState) => state.followingData
   );
+
+  // console.log("followingsheets=",followingsheets);
 
   // Fetch data on mount if user ID is available
   useEffect(() => {
     if (user?.id) {
-      dispatch(fetchFollowingData(user.id));
+      dispatch(fetchFollowedSheets(user.id));
     }
   }, [dispatch, user?.id]);
 
   // Extract sheets when `data` updates
   useEffect(() => {
     // @ts-ignore
-    if (data?.sheets) {
+    if (followingsheets) {
       // @ts-ignore
-      setSheetData(data.sheets);
+      setSheetData(followingsheets);
     }
-  }, [data]);
+  }, [followingsheets]);
 
   // console.log("sheetData=", sheetData);
 

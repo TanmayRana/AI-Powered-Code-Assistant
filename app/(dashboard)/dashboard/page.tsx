@@ -622,7 +622,7 @@ import { motion } from "framer-motion";
 import { useUser } from "@clerk/nextjs";
 import { AppDispatch, RootState } from "@/lib/store";
 import { getLessons } from "@/lib/slices/lessonSlice";
-import { fetchFollowingData } from "@/lib/slices/followingSlice";
+// import { fetchFollowingData } from "@/lib/slices/followingSlice";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -640,6 +640,7 @@ import {
   PlusCircle,
   Rocket,
 } from "lucide-react";
+import { fetchFollowedSheets } from "@/lib/slices/followingSlice";
 
 /* ----------------- Types ----------------- */
 interface Lesson {
@@ -868,9 +869,12 @@ export default function DashboardPage() {
 
   const lessonsData = useSelector((state: RootState) => state.lessons.lessons);
   const loading = useSelector((state: RootState) => state.lessons.loading);
-  const { data, isLoading } = useSelector(
-    (state: RootState) => state.followingData
-  );
+  const {
+    followingsheets,
+    loading: isLoading,
+    error,
+  } = useSelector((state: RootState) => state.followingData);
+  // console.log("followingsheets=",followingsheets);
 
   const [sheetData, setSheetData] = useState<Sheet[]>([]);
 
@@ -882,17 +886,17 @@ export default function DashboardPage() {
 
   useEffect(() => {
     if (user?.id) {
-      dispatch(fetchFollowingData(user.id));
+      dispatch(fetchFollowedSheets(user.id));
     }
   }, [dispatch, user?.id]);
 
   useEffect(() => {
     // @ts-ignore
-    if (data?.sheets) {
+    if (followingsheets) {
       // @ts-ignore
-      setSheetData(data.sheets);
+      setSheetData(followingsheets);
     }
-  }, [data]);
+  }, [followingsheets]);
 
   const quickActions = [
     {

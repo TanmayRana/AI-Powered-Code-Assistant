@@ -6,6 +6,7 @@ import fullSheetsReducer from "./slices/fullSheetsSlice";
 import questionReducer from "./slices/questionSlice";
 import Following from "./slices/followingSlice";
 import completedQuestionsReducer from "./slices/completedQuestionsSlice";
+import notesReducer from "@/lib/slices/questionNotesSlice";
 
 export const store = configureStore({
   reducer: {
@@ -15,6 +16,7 @@ export const store = configureStore({
     question: questionReducer,
     followingData: Following,
     completedQuestions: completedQuestionsReducer,
+    notes: notesReducer,
   },
 });
 
