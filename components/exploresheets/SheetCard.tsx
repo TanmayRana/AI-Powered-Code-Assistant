@@ -304,12 +304,21 @@ const SheetCard: React.FC<SheetCardProps> = ({
   const isFollowing = followingsheets?.some((item) => item._id === _id);
 
   // Compute progress
+  // const sheetProgress = (completedQuestions || []).find(
+  //   (s: any) => s.sheetId?.toString() === _id?.toString()
+  // );
+  // const completedCount = Array.isArray(sheetProgress?.questions)
+  //   ? sheetProgress?.questions.filter((q: any) => q.completed).length
+  //   : 0;
+  // const percent =
+  //   totalQuestions > 0 ? (completedCount / totalQuestions) * 100 : 0;
+
   const sheetProgress = (completedQuestions || []).find(
     (s: any) => s.sheetId?.toString() === _id?.toString()
   );
-  const completedCount = Array.isArray(sheetProgress?.questions)
-    ? sheetProgress?.questions.filter((q: any) => q.completed).length
-    : 0;
+  const completedCount = (sheetProgress?.questions || []).filter(
+    (q: any) => q.completed
+  ).length;
   const percent =
     totalQuestions > 0 ? (completedCount / totalQuestions) * 100 : 0;
 
