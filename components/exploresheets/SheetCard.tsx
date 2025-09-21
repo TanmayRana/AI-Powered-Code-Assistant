@@ -308,7 +308,7 @@ const SheetCard: React.FC<SheetCardProps> = ({
     (s: any) => s.sheetId?.toString() === _id?.toString()
   );
   const completedCount = Array.isArray(sheetProgress?.questions)
-    ? sheetProgress.questions.filter((q: any) => q.completed).length
+    ? sheetProgress?.questions.filter((q: any) => q.completed).length
     : 0;
   const percent =
     totalQuestions > 0 ? (completedCount / totalQuestions) * 100 : 0;
